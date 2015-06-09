@@ -13,6 +13,7 @@
 SAFile::SAFile(cchar* file)
 {
     _path = strdup(file);
+    _tmpSize = 0;
     
     strcpy(_header.identify, "SA00");
     _header.count = 0;
@@ -88,11 +89,41 @@ void SAFile::getFile(cchar* path, cchar** bytes, ulong* len)
     
 }
 
+void SAFile::getFileList(vector<FileRecord>* files)
+{
+    files->clear();
+    
+    for (int i = 0; i < _records.size(); i++)
+    {
+        SAFileRecord record = _records.at(i);
+        
+        FileRecord frecord;
+        frecord.fid = i;
+        frecord.path = record.path;
+        files->push_back(frecord);
+    }
+}
+
 void SAFile::archive(void)
 {
     FILE* tf = tmpfile();
     ulong head = 0;
     char buffer[BUFFER_SIZE] = {0};
+    
+    if (FILE* of = fopen(_path, "rb+"))
+    {
+        fseek(of, sizeof(SAFileHeader) + _header.size, SEEK_SET);
+        
+        size_t len = 0;
+        while((len = fread(buffer, 1, BUFFER_SIZE, of)))
+        {
+            fwrite(buffer, 1, len, tf);
+            head += len;
+        }
+        
+        fclose(of);
+    }
+    
     int fcnt = (int)_todos.size();
     while (!_todos.empty())
     {

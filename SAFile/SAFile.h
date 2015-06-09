@@ -33,6 +33,12 @@ typedef struct _SAFileRecord
     ulong len;
 } SAFileRecord;
 
+typedef struct _FileRecord
+{
+    uint fid;
+    cchar* path;
+} FileRecord;
+
 class SAFile
 {
     private:
@@ -48,7 +54,10 @@ class SAFile
         ~SAFile();
     
         void addFile(cchar* path);
+    
         void getFile(cchar* path, cchar** bytes, ulong* len);
+        void getFileList(vector<FileRecord>* files);
+    
         void archive(void);
 };
 
