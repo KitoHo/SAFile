@@ -25,9 +25,9 @@ int main(int argc, const char * argv[]) {
     //file.archive();
     
     SAFile file("/Users/kito/Desktop/Xcode_Project/SAFile/arc2.sa");
-    file.addFile("/Users/kito/Desktop/Xcode_Project/SAFile/files/mzl.vudxrzja.200x200-75.png");
-    file.addFile("/Users/kito/Desktop/Xcode_Project/SAFile/files/mzl.ylxiprpt.200x200-75.png");
-    file.archive();
+    //file.addFile("/Users/kito/Desktop/Xcode_Project/SAFile/files/mzl.vudxrzja.200x200-75.png");
+    //file.addFile("/Users/kito/Desktop/Xcode_Project/SAFile/files/mzl.ylxiprpt.200x200-75.png");
+    //file.archive();
     
     vector<FileRecord> record;
     file.getFileList(&record);
@@ -36,6 +36,17 @@ int main(int argc, const char * argv[]) {
     {
         cout << record.at(i).path << endl;
     }
+    
+    char* data = NULL;
+    ulong len = 0;
+    //file.getFileByFid(5, &data, &len);
+    file.getFileByPath("/Users/kito/Desktop/Xcode_Project/SAFile/files/mzl.vudxrzja.200x200-75.png", &data, &len);
+    
+    cout << len << " : " << data << endl;
+    
+    FILE* fout = fopen("/Users/kito/Desktop/Xcode_Project/SAFile/arc_out.png", "wb+");
+    fwrite(data, sizeof(char), len, fout);
+    fclose(fout);
     
     return 0;
 }

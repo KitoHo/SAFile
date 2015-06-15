@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <algorithm>
 #include <vector>
 using namespace std;
 
@@ -53,9 +54,10 @@ class SAFile
         SAFile(cchar* file);
         ~SAFile();
     
-        void addFile(cchar* path);
+        void addFile(cchar* path, cchar* key);
     
-        void getFile(cchar* path, cchar** bytes, ulong* len);
+        void getFileByFid(uint fid, char** bytes, ulong* len);
+        void getFileByPath(cchar* path, char** bytes, ulong* len);
         void getFileList(vector<FileRecord>* files);
     
         void archive(void);

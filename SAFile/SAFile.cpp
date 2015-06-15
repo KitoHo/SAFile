@@ -10,6 +10,10 @@
 
 #define BUFFER_SIZE 2048
 
+bool RecordPredicate (SAFileRecord record, cchar* path) {
+    return strcmp(record.path, path) == 0;
+}
+
 SAFile::SAFile(cchar* file)
 {
     _path = strdup(file);
@@ -73,7 +77,7 @@ SAFile::~SAFile()
     delete _path;
 }
 
-void SAFile::addFile(cchar* path)
+void SAFile::addFile(cchar* path, cchar* key)
 {
     SAFileRecord record;
     record.path = strdup(path);
@@ -84,9 +88,35 @@ void SAFile::addFile(cchar* path)
     _tmpSize += strlen(path) + 1;
 }
 
-void SAFile::getFile(cchar* path, cchar** bytes, ulong* len)
+void SAFile::getFileByFid(uint fid, char** bytes, ulong* len)
 {
+    if(fid >= _records.size()) {
+        return;
+    }
     
+    if (FILE* f = fopen(_path, "rb+"))
+    {
+        SAFileRecord record = _records.at(fid);
+        *len = record.len;
+        
+        fseek(f, sizeof(SAFileHeader) + _header.size + record.idx, SEEK_SET);
+        
+        (*bytes) = new char[record.len];
+        memset((*bytes), 0, record.len);
+        fread((*bytes), sizeof(char), record.len, f);
+        
+        fclose(f);
+    }
+}
+
+void SAFile::getFileByPath(cchar* path, char** bytes, ulong* len)
+{
+    cchar* paths[] = {path};
+    vector<SAFileRecord>::iterator it;
+    it = search(_records.begin(), _records.end(), paths, paths+1, RecordPredicate);
+    
+    uint fid = (uint)(it - _records.begin());
+    this->getFileByFid(fid, bytes, len);
 }
 
 void SAFile::getFileList(vector<FileRecord>* files)
